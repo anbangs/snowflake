@@ -1,5 +1,5 @@
 {*****************************************************
-twitter snowflakeËã·¨
+twitter snowflakeç®—æ³•
 author HAB
 ******************************************************}
 unit uSnowflake;
@@ -13,21 +13,21 @@ uses
 type
   TSnowflake = class
   private
-    Ftwepoch           : Int64; //¿ªÊ¼Ê±¼ä½Ø(2018-01-01)
-    FworkerIdBits      : Int64; //»úÆ÷idËùÕ¼µÄÎ»Êı
-    FdatacenterIdBits  : Int64; //Êı¾İ±êÊ¶idËùÕ¼µÄÎ»Êı
-    FmaxWorkerId       : Int64; //Ö§³ÖµÄ×î´ó»úÆ÷id
-    FmaxDatacenterId   : Int64; //Ö§³ÖµÄ×î´óÊı¾İ±êÊ¶id
-    FsequenceBits      : Int64; //ĞòÁĞÔÚidÖĞÕ¼µÄÎ»Êı
-    FworkerIdShift     : Int64; //»úÆ÷IDÏò×óÒÆ12Î»
-    FdatacenterIdShift : Int64; //Êı¾İ±êÊ¶idÏò×óÒÆ17Î»(12+5)
-    FtimestampLeftShift: Int64; //Ê±¼ä½ØÏò×óÒÆ22Î»(5+5+12)
-    FsequenceMask      : Int64; //Éú³ÉĞòÁĞµÄÑÚÂë£¬ÕâÀïÎª4095 (0b111111111111=0xfff=4095)
+    Ftwepoch           : Int64; //å¼€å§‹æ—¶é—´æˆª(2018-01-01)
+    FworkerIdBits      : Int64; //æœºå™¨idæ‰€å çš„ä½æ•°
+    FdatacenterIdBits  : Int64; //æ•°æ®æ ‡è¯†idæ‰€å çš„ä½æ•°
+    FmaxWorkerId       : Int64; //æ”¯æŒçš„æœ€å¤§æœºå™¨id
+    FmaxDatacenterId   : Int64; //æ”¯æŒçš„æœ€å¤§æ•°æ®æ ‡è¯†id
+    FsequenceBits      : Int64; //åºåˆ—åœ¨idä¸­å çš„ä½æ•°
+    FworkerIdShift     : Int64; //æœºå™¨IDå‘å·¦ç§»12ä½
+    FdatacenterIdShift : Int64; //æ•°æ®æ ‡è¯†idå‘å·¦ç§»17ä½(12+5)
+    FtimestampLeftShift: Int64; //æ—¶é—´æˆªå‘å·¦ç§»22ä½(5+5+12)
+    FsequenceMask      : Int64; //ç”Ÿæˆåºåˆ—çš„æ©ç ï¼Œè¿™é‡Œä¸º4095 (0b111111111111=0xfff=4095)
 
-    FworkerId          : Int64; //»úÆ÷id(0~31)
-    FdatacenterId      : Int64; //Êı¾İ±êÊ¶id(0~31)
-    Fsequence          : Int64; //ºÁÃëÄÚĞòÁĞ(0~4095)
-    FlastTimestamp     : Int64; //ÉÏ´ÎÉú³ÉIDµÄÊ±¼ä½Ø
+    FworkerId          : Int64; //æœºå™¨id(0~31)
+    FdatacenterId      : Int64; //æ•°æ®æ ‡è¯†id(0~31)
+    Fsequence          : Int64; //æ¯«ç§’å†…åºåˆ—(0~4095)
+    FlastTimestamp     : Int64; //ä¸Šæ¬¡ç”ŸæˆIDçš„æ—¶é—´æˆª
     FLock: TObject;
     procedure DoInit;
   protected
@@ -64,7 +64,7 @@ end;
 
 procedure TSnowflake.DoInit;
 begin
-  Ftwepoch            := DateTimeToUnix(EncodeDate(2018, 1, 1), False); //¿ªÊ¼Ê±¼ä½Ø
+  Ftwepoch            := DateTimeToUnix(EncodeDate(2018, 1, 1), False); //å¼€å§‹æ—¶é—´æˆª
   FworkerIdBits       := 5;
   FdatacenterIdBits   := 5;
   FmaxWorkerId        := -1 xor (-1 shl FworkerIdBits);
@@ -84,9 +84,9 @@ function TSnowflake.tilNextMillis(AlastTimestamp: Int64): Int64;
 var
   timestamp: Int64;
 begin
-  //×èÈûµ½ÏÂÒ»¸öºÁÃë£¬Ö±µ½»ñµÃĞÂµÄÊ±¼ä´Á
-  //lastTimestamp ÉÏ´ÎÉú³ÉIDµÄÊ±¼ä½Ø
-  //return µ±Ç°Ê±¼ä´Á
+  //é˜»å¡åˆ°ä¸‹ä¸€ä¸ªæ¯«ç§’ï¼Œç›´åˆ°è·å¾—æ–°çš„æ—¶é—´æˆ³
+  //lastTimestamp ä¸Šæ¬¡ç”ŸæˆIDçš„æ—¶é—´æˆª
+  //return å½“å‰æ—¶é—´æˆ³
   timestamp := timeGen;
   while (timestamp <= AlastTimestamp) do
   begin
@@ -97,7 +97,7 @@ end;
 
 function TSnowflake.timeGen: Int64;
 begin
-  Result := DateTimeToUnix(Now, False);
+  Result := MilliSecondsBetween(Now, EncodeDate(1970, 1, 1));//DateTimeToUnix(Now, False);
 end;
 
 function TSnowflake.NextID: Int64;
@@ -107,29 +107,29 @@ begin
   TMonitor.Enter(FLock);
   try
     timestamp := timeGen;
-    //Èç¹ûµ±Ç°Ê±¼äĞ¡ÓÚÉÏÒ»´ÎIDÉú³ÉµÄÊ±¼ä´Á£¬ËµÃ÷ÏµÍ³Ê±ÖÓ»ØÍË¹ıÕâ¸öÊ±ºòÓ¦µ±Å×³öÒì³£
+    //å¦‚æœå½“å‰æ—¶é—´å°äºä¸Šä¸€æ¬¡IDç”Ÿæˆçš„æ—¶é—´æˆ³ï¼Œè¯´æ˜ç³»ç»Ÿæ—¶é’Ÿå›é€€è¿‡è¿™ä¸ªæ—¶å€™åº”å½“æŠ›å‡ºå¼‚å¸¸
     if (timestamp < FlastTimestamp) then
     raise Exception.CreateFmt('Clock moved backwards. ' + sLineBreak +
                               'Refusing to generate id for %d milliseconds', [FlastTimestamp - timestamp]);
 
-    //Èç¹ûÊÇÍ¬Ò»Ê±¼äÉú³ÉµÄ£¬Ôò½øĞĞºÁÃëÄÚĞòÁĞ
+    //å¦‚æœæ˜¯åŒä¸€æ—¶é—´ç”Ÿæˆçš„ï¼Œåˆ™è¿›è¡Œæ¯«ç§’å†…åºåˆ—
     if (FlastTimestamp = timestamp) then
     begin
       Fsequence := (Fsequence + 1) and FsequenceMask;
-      //ºÁÃëÄÚĞòÁĞÒç³ö
-      if (Fsequence = 0) then //×èÈûµ½ÏÂÒ»¸öºÁÃë,»ñµÃĞÂµÄÊ±¼ä´Á
+      //æ¯«ç§’å†…åºåˆ—æº¢å‡º
+      if (Fsequence = 0) then //é˜»å¡åˆ°ä¸‹ä¸€ä¸ªæ¯«ç§’,è·å¾—æ–°çš„æ—¶é—´æˆ³
         timestamp := tilNextMillis(FlastTimestamp);
     end
-    else Fsequence := 0; //Ê±¼ä´Á¸Ä±ä£¬ºÁÃëÄÚĞòÁĞÖØÖÃ
+    else Fsequence := 0; //æ—¶é—´æˆ³æ”¹å˜ï¼Œæ¯«ç§’å†…åºåˆ—é‡ç½®
 
-    //ÉÏ´ÎÉú³ÉIDµÄÊ±¼ä½Ø
+    //ä¸Šæ¬¡ç”ŸæˆIDçš„æ—¶é—´æˆª
     FlastTimestamp := timestamp;
 
-    //ÒÆÎ»²¢Í¨¹ı»òÔËËãÆ´µ½Ò»Æğ×é³É64Î»µÄID
-    Result := ((timestamp - Ftwepoch) shl FtimestampLeftShift) //Ê±¼ä´Á
-                or (FdatacenterId shl FdatacenterIdShift)      //Êı¾İ±êÊ¶
-                or (FworkerId shl FworkerIdShift)              //»úÆ÷ID
-                or Fsequence;                                  //ĞòÁĞºÅ
+    //ç§»ä½å¹¶é€šè¿‡æˆ–è¿ç®—æ‹¼åˆ°ä¸€èµ·ç»„æˆ64ä½çš„ID
+    Result := ((timestamp - Ftwepoch) shl FtimestampLeftShift) //æ—¶é—´æˆ³
+                or (FdatacenterId shl FdatacenterIdShift)      //æ•°æ®æ ‡è¯†
+                or (FworkerId shl FworkerIdShift)              //æœºå™¨ID
+                or Fsequence;                                  //åºåˆ—å·
   finally
     TMonitor.Exit(FLock);
   end;
